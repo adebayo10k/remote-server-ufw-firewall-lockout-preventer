@@ -24,7 +24,7 @@ function main
 	mkdir -p "$exec_dir/$ufw_testing_dir"
 	# create reference to a log file	
 	ufw_disable_log="$exec_dir/$ufw_testing_dir/just-testing-ufw.log"
-	# 
+
 	PRECONDITIONS_OK=
 
 ################################################################
@@ -41,11 +41,11 @@ function main
 
 	if [[ "$PRECONDITIONS_OK" = 'PASSED'  ]]
 	then
-		echo "precondition tests	:	passed" | tee -a "$ufw_disable_log"
+		echo "precondition test	:	passed" | tee -a "$ufw_disable_log"
 		disable_ufw
 	elif [[ "$PRECONDITIONS_OK" = 'FAILED'  ]]
 	then
-		echo "precondition tests	:	failed" | tee -a "$ufw_disable_log"
+		echo "precondition test	:	failed" | tee -a "$ufw_disable_log"
 		# exit with wrong preconditions message
 		echo "wrong preconditions exist, so exiting now"
 		exit 0
@@ -68,7 +68,9 @@ function main
 
 function do_precondition_test ()
 {
-	echo $(ufw status) | grep -q 'Status: active'
+	isActive=42 # reset
+
+	echo $(/usr/sbin/ufw status) | grep -q 'Status: active'
 	isActive=$?
 	# if the string 'Status: active' was detected in stdout...
 	if [ $isActive -eq 0 ]	
@@ -95,7 +97,7 @@ function disable_ufw ()
 # test whether the ufw disable command worked
 function do_postcondition_test ()
 {		
-	if [[ "$(ufw status)" = 'Status: inactive'  ]]
+	if [[ "$(/usr/sbin/ufw status)" = 'Status: inactive'  ]]
 	then
 		echo "postcondition found	:	disabled" | tee -a "$ufw_disable_log"
 		echo "postcondition test	:	passed" | tee -a "$ufw_disable_log"
