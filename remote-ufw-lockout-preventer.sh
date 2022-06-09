@@ -20,24 +20,37 @@
 
 # 1. MAKE SHARED LIBRARY FUNCTIONS AVAILABLE HERE
 
-# make all the shared library functions available to this script
-shared_bash_functions_fullpath="${SHARED_LIBRARIES_DIR}/shared-bash-functions.inc.sh"
-shared_bash_constants_fullpath="${SHARED_LIBRARIES_DIR}/shared-bash-constants.inc.sh"
-
-for resource in "$shared_bash_functions_fullpath" "$shared_bash_constants_fullpath"
-do
-	if [ -f "$resource" ]
-	then
-		echo "Required library resource FOUND OK at:"
-		echo "$resource"
-		source "$resource"
-	else
-		echo "Could not find the required resource at:"
-		echo "$resource"
-		echo "Check that location. Nothing to do now, except exit."
-		exit 1
-	fi
-done
+# in preference order
+declare -a expected_lib_symlink_locations=(
+	'/usr/local/lib/lib10k'
+	"${HOME}/.local/share/lib10k"	
+	'.'
+	'/usr/local/bin'
+)
+# check whether SHARED_LIBRARIES_DIR has already been set (as an environment variable)
+# if not try to assign value to SHARED_LIBRARIES_DIR by checking the expected symlink locations
+if [ -z "${SHARED_LIBRARIES_DIR}" ]
+then
+	for dir in ${expected_lib_symlink_locations[@]}
+	do
+		if [ -d "$dir" ] && [ -f "${dir}/shared-bash-functions.inc.sh" ] && [ -f "${dir}/shared-bash-constants.inc.sh" ]
+		then
+			SHARED_LIBRARIES_DIR="$dir"
+			shared_bash_functions_fullpath="${SHARED_LIBRARIES_DIR}/shared-bash-functions.inc.sh"
+			shared_bash_constants_fullpath="${SHARED_LIBRARIES_DIR}/shared-bash-constants.inc.sh"
+			break
+		fi
+	done 	
+fi
+# check that SHARED_LIBRARIES_DIR has now been set
+if [ -n "${SHARED_LIBRARIES_DIR}" ]
+then
+	source "$shared_bash_functions_fullpath"
+	source "$shared_bash_constants_fullpath"
+else
+	echo "Could not find the required libraries for this program. Now exit"
+	exit 1
+fi
 
 
 # 2. MAKE SCRIPT-SPECIFIC FUNCTIONS AVAILABLE HERE
@@ -56,14 +69,14 @@ canonical_fullpath="$(readlink -f $command_fullpath)"
 canonical_dirname="$(dirname $canonical_fullpath)"
 
 # this is just development debug information
-if [ -h "$command_fullpath" ]
-then
-	echo "is symlink"
-	echo "canonical_fullpath : $canonical_fullpath"
-else
-	echo "is canonical"
-	echo "canonical_fullpath : $canonical_fullpath"
-fi
+#if [ -h "$command_fullpath" ]
+#then
+#	echo "is symlink"
+#	echo "canonical_fullpath : $canonical_fullpath"
+#else
+#	echo "is canonical"
+#	echo "canonical_fullpath : $canonical_fullpath"
+#fi
 
 # included source files for json profile import functions
 #source "${canonical_dirname}/preset-profile-builder.inc.sh"
@@ -77,7 +90,7 @@ fi
 function main 
 {
 ################################################################
-	# GLOBAL VARIABLE DECLARATIONS:
+# GLOBAL VARIABLE DECLARATIONS:
 ################################################################
 
 	exec_dir='/usr/local/bin'
@@ -89,7 +102,7 @@ function main
 	PRECONDITIONS_OK=
 
 ################################################################
-	# FUNCTION CALLS:
+# FUNCTION CALLS:
 ################################################################
 
 	echo | tee -a "$ufw_disable_log"
@@ -129,7 +142,7 @@ function main
 
 function do_precondition_test ()
 {
-	isActive=42 # reset
+	isActive=42 # initialise to a fail state
 
 	echo $(/usr/sbin/ufw status) | grep -q 'Status: active'
 	isActive=$?
