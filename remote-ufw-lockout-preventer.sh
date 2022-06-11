@@ -31,6 +31,14 @@ function main
 ################################################################
 # GLOBAL VARIABLE DECLARATIONS:
 ################################################################
+	program_title="remote-ufw-lockout-preventer"
+	original_author="damola adebayo"
+	program_dependencies=("ufw")
+
+	declare -i max_expected_no_of_program_parameters=0
+	declare -i min_expected_no_of_program_parameters=0
+	declare -ir actual_no_of_program_parameters=$#
+	all_the_parameters_string="$@"
 
 	exec_dir='/usr/local/bin'
 	ufw_testing_dir='ufw-testing'
@@ -43,6 +51,16 @@ function main
 ################################################################
 # FUNCTION CALLS:
 ################################################################
+	if [ ! $USER = 'root' ]
+	then
+		## Display a program header
+		lib10k_display_program_header "$program_title" "$original_author"
+		## check program dependencies and requirements
+		lib10k_check_program_requirements "${program_dependencies[@]}"
+	fi
+	
+	## check #args to program
+	lib10k_check_no_of_program_args
 
 	echo | tee -a "$ufw_disable_log"
 	echo "$(date)" >> "$ufw_disable_log"
@@ -59,12 +77,10 @@ function main
 	elif [[ "$PRECONDITIONS_OK" = 'FAILED'  ]]
 	then
 		echo "precondition test	:	failed" | tee -a "$ufw_disable_log"
-		# exit with wrong preconditions message
-		echo "wrong preconditions exist, so exiting now"
 		exit 0
 	else
-		# exit with error failsafe branch
-		exit 1
+		msg="Failsafe branch entered error. Exiting now."
+		lib10k_exit_with_error "E_UNEXPECTED_BRANCH_ENTERED" "$msg"
 	fi
 
 	echo | tee -a "$ufw_disable_log"
@@ -73,7 +89,6 @@ function main
 	do_postcondition_test
 
 } ## end main
-
 
 ################################################################
 	# FUNCTION DECLARATIONS:
@@ -96,8 +111,7 @@ function do_precondition_test ()
 		echo "precondition found	:	disabled" | tee -a "$ufw_disable_log"
 	fi
 	# check syslog when root runs, as echo output might need to be >/dev/null
-}
-	
+}	
 
 function disable_ufw ()
 {
@@ -114,13 +128,12 @@ function do_postcondition_test ()
 	then
 		echo "postcondition found	:	disabled" | tee -a "$ufw_disable_log"
 		echo "postcondition test	:	passed" | tee -a "$ufw_disable_log"
-		echo "Go ahead and entrust this program to cron"
+		echo "Go ahead and entrust this program to your crontab"
 	else
 		echo "postcondition found	:	enabled" | tee -a "$ufw_disable_log"
 		echo "postcondition test	:	failed" | tee -a "$ufw_disable_log"
 		echo "Don't pass control of this program to the cron yet!"
 	fi
 }
-
 
 main "$@"; exit
