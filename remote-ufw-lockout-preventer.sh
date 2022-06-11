@@ -13,79 +13,18 @@
 # the cronjob can be commented out or removed when testing is complete.
 #===================================================
 
-##################################################################
-##################################################################
-# THIS STUFF IS HAPPENING BEFORE MAIN FUNCTION CALL:
-#===================================
+## THIS STUFF IS HAPPENING BEFORE MAIN FUNCTION CALL:
 
-# 1. MAKE SHARED LIBRARY FUNCTIONS AVAILABLE HERE
+command_fullpath="$(readlink -f $0)" 
+command_basename="$(basename $command_fullpath)"
+command_dirname="$(dirname $command_fullpath)"
 
-# in preference order
-declare -a expected_lib_symlink_locations=(
-	'/usr/local/lib/lib10k'
-	"${HOME}/.local/share/lib10k"	
-	'.'
-	'/usr/local/bin'
-)
-# check whether SHARED_LIBRARIES_DIR has already been set (as an environment variable)
-# if not try to assign value to SHARED_LIBRARIES_DIR by checking the expected symlink locations
-if [ -z "${SHARED_LIBRARIES_DIR}" ]
-then
-	for dir in ${expected_lib_symlink_locations[@]}
-	do
-		if [ -d "$dir" ] && [ -f "${dir}/shared-bash-functions.inc.sh" ] && [ -f "${dir}/shared-bash-constants.inc.sh" ]
-		then
-			SHARED_LIBRARIES_DIR="$dir"
-			shared_bash_functions_fullpath="${SHARED_LIBRARIES_DIR}/shared-bash-functions.inc.sh"
-			shared_bash_constants_fullpath="${SHARED_LIBRARIES_DIR}/shared-bash-constants.inc.sh"
-			break
-		fi
-	done 	
-fi
-# check that SHARED_LIBRARIES_DIR has now been set
-if [ -n "${SHARED_LIBRARIES_DIR}" ]
-then
-	source "$shared_bash_functions_fullpath"
-	source "$shared_bash_constants_fullpath"
-else
-	echo "Could not find the required libraries for this program. Now exit"
-	exit 1
-fi
+for file in "${command_dirname}/includes"/*
+do
+	source "$file"
+done
 
-
-# 2. MAKE SCRIPT-SPECIFIC FUNCTIONS AVAILABLE HERE
-
-# must resolve canonical_fullpath here, in order to be able to include sourced function files BEFORE we call main, and  outside of any other functions defined here, of course.
-
-# at runtime, command_fullpath may be either a symlink file or actual target source file
-command_fullpath="$0"
-command_dirname="$(dirname $0)"
-command_basename="$(basename $0)"
-
-# if a symlink file, then we need a reference to the canonical file name, as that's the location where all our required source files will be.
-# we'll test whether a symlink, then use readlink -f or realpath -e although those commands return canonical file whether symlink or not.
-# 
-canonical_fullpath="$(readlink -f $command_fullpath)"
-canonical_dirname="$(dirname $canonical_fullpath)"
-
-# this is just development debug information
-#if [ -h "$command_fullpath" ]
-#then
-#	echo "is symlink"
-#	echo "canonical_fullpath : $canonical_fullpath"
-#else
-#	echo "is canonical"
-#	echo "canonical_fullpath : $canonical_fullpath"
-#fi
-
-# included source files for json profile import functions
-#source "${canonical_dirname}/preset-profile-builder.inc.sh"
-
-
-# THAT STUFF JUST HAPPENED (EXECUTED) BEFORE MAIN FUNCTION CALL!
-##################################################################
-##################################################################
-
+## THAT STUFF JUST HAPPENED (EXECUTED) BEFORE MAIN FUNCTION CALL!
 
 function main 
 {
