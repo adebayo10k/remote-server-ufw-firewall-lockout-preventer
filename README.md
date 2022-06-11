@@ -30,6 +30,8 @@ So basically, if the firewall is already disabled, there is nothing to do, so th
 
 [shared-bash-constants.inc.sh](https://github.com/adebayo10k/shared-functions-library) - common constants library
 
+The [ufw (Uncomplicated Firewall)](https://help.ubuntu.com/community/UFW) program
+
 
 ## Prerequisites
 
