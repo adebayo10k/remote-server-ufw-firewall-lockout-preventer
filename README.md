@@ -1,6 +1,6 @@
 # remote-server-ufw-firewall-lockout-preventer
 
-ufw (uncomplicated firewall) is a layer 2 firewall with which we can create rulesets to allow and deny IP traffic.
+ufw (uncomplicated firewall) is a layer 3 (OSI Model) firewall with which we can create rulesets to allow and deny IP traffic.
 ufw does a great job of warning us if we're about to remove the wrong ssh allow rule during our ssh session -
 but as wise person once said... 
 >"never say never".

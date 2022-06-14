@@ -28,9 +28,9 @@ done
 
 function main 
 {
-################################################################
+##########################
 # GLOBAL VARIABLE DECLARATIONS:
-################################################################
+##########################
 	program_title="remote-ufw-lockout-preventer"
 	original_author="damola adebayo"
 	program_dependencies=("ufw")
@@ -48,9 +48,9 @@ function main
 
 	PRECONDITIONS_OK=
 
-################################################################
-# FUNCTION CALLS:
-################################################################
+	##########################
+	# FUNCTION CALLS:
+	##########################
 	if [ ! $USER = 'root' ]
 	then
 		## Display a program header
@@ -59,7 +59,7 @@ function main
 		lib10k_check_program_requirements "${program_dependencies[@]}"
 	fi
 	
-	## check #args to program
+	# check the number of parameters to this program
 	lib10k_check_no_of_program_args
 
 	echo | tee -a "$ufw_disable_log"
@@ -90,9 +90,9 @@ function main
 
 } ## end main
 
-################################################################
+##########################
 	# FUNCTION DECLARATIONS:
-################################################################
+##########################
 
 function do_precondition_test ()
 {
