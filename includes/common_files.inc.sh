@@ -4,10 +4,12 @@
 
 # in preference order
 declare -a expected_lib_symlink_locations=(
+	"${command_dirname}/shared-functions-library"
 	'/usr/local/lib/lib10k'
 	"${HOME}/.local/share/lib10k"	
 	'.'
 	'/usr/local/bin'
+	
 )
 
 # Check whether SHARED_LIBRARIES_DIR has already been set (as an environment variable).
@@ -32,7 +34,7 @@ then
 	source "$shared_bash_functions_fullpath"
 	source "$shared_bash_constants_fullpath"
 else
-	echo "Could not find the required libraries for this program. Now exit"
+	echo "Could not find the required libraries for this program. Exit program."
 	exit 1
 fi
 
