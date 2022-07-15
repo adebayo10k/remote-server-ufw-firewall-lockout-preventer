@@ -18,7 +18,9 @@ if [ -z "${SHARED_LIBRARIES_DIR}" ]
 then
 	for dir in ${expected_lib_symlink_locations[@]}
 	do
-		if [ -d "$dir" ] && [ -f "${dir}/shared-bash-functions.inc.sh" ] && [ -f "${dir}/shared-bash-constants.inc.sh" ]
+		if [ -d "$dir" ] && \
+		[ -f "${dir}/shared-bash-functions.inc.sh" ] && \
+		[ -f "${dir}/shared-bash-constants.inc.sh" ]
 		then
 			SHARED_LIBRARIES_DIR="$dir"
 			shared_bash_functions_fullpath="${SHARED_LIBRARIES_DIR}/shared-bash-functions.inc.sh"
@@ -28,7 +30,10 @@ then
 	done 	
 fi
 
-# source lib files if they've now been located
+# SHARED_LIBRARIES_DIR variable should now have been either \
+# found or had value assigned.
+# If not, native exit.
+# If so, source lib files.
 if [ -n "${SHARED_LIBRARIES_DIR}" ]
 then
 	source "$shared_bash_functions_fullpath"
