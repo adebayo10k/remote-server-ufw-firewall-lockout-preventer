@@ -19,10 +19,18 @@ command_fullpath="$(readlink -f $0)"
 command_basename="$(basename $command_fullpath)"
 command_dirname="$(dirname $command_fullpath)"
 
-for file in "${command_dirname}/includes"/*
-do
-	source "$file"
-done
+if [ -d "${command_dirname}/includes" ]
+then
+	for file in "${command_dirname}/includes"/*
+	do
+		source "$file"
+	done
+else
+	# return non-zero exit code with native exit
+	echo "Program requires \"${command_dirname}/includes\"."
+	echo "Required file not found. Returning exit code 1. Exiting now..."
+	exit 1
+fi
 
 ## THAT STUFF JUST HAPPENED (EXECUTED) BEFORE MAIN FUNCTION CALL!
 
@@ -62,11 +70,15 @@ function main
 	# check the number of parameters to this program
 	lib10k_check_no_of_program_args
 
+	# TODO: verify access to log file
+
+	# write to log file
 	echo | tee -a "$ufw_disable_log"
 	echo "$(date)" >> "$ufw_disable_log"
-
 	echo | tee -a "$ufw_disable_log"
-	# precondition for this program is that ufw is enabled
+
+	# A precondition for this program is that ufw is enabled.
+	# Test and output result to log file
 	echo "precondition needed	:	enabled" | tee -a "$ufw_disable_log"
 	do_precondition_test
 
